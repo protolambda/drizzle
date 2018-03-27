@@ -15,7 +15,6 @@ class DrizzleContract {
       }
     )
 
-
     // Merge web3 contract instance into DrizzleContract instance.
     Object.assign(this, web3Contract)
 
@@ -56,7 +55,6 @@ class DrizzleContract {
       initialized: false,
       synced: false,
       state: {},
-      methods: this.methods,
       address: this._address
     }
 
