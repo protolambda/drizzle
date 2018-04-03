@@ -5,6 +5,8 @@ class DrizzleContract {
     this.web3 = web3
     this.store = store
 
+    this.initContractState();
+
     // Instantiate the contract.
     var web3Contract = new web3.eth.Contract(
       this.abi,
@@ -14,6 +16,7 @@ class DrizzleContract {
         data: this.contractArtifact.deployedBytecode
       }
     )
+
 
     // Merge web3 contract instance into DrizzleContract instance.
     Object.assign(this, web3Contract)
@@ -30,7 +33,6 @@ class DrizzleContract {
       }
     }
 
-    this.initContractState();
 
     // Register event listeners if any events.
     if (events.length > 0) {
@@ -42,8 +44,10 @@ class DrizzleContract {
     }
 
     const name = contractArtifact.contractName
+    const methods = this.methods
+    const address = this._address
 
-    store.dispatch({type: 'CONTRACT_INITIALIZED', name})
+    store.dispatch({type: 'CONTRACT_INITIALIZED', name, methods, address})
   }
 
   initContractState() {
@@ -55,7 +59,7 @@ class DrizzleContract {
       initialized: false,
       synced: false,
       state: {},
-      address: this._address
+      networks: this.contractArtifact.networks
     }
 
     // Constant getters
@@ -84,18 +88,16 @@ class DrizzleContract {
       const contractName = contract.contractArtifact.contractName
       const functionState = contract.store.getState().contracts[contractName].state[fnName]
 
-      // If call result is in state and fresh, return value instead of calling
+      // If call result is in state return value instead of calling
       if (argsHash in functionState) {
-        if (contract.store.getState().contracts[contractName].synced === true) {
-          return argsHash
-        }
+        return functionState[argsHash].value;
       }
 
       // Otherwise, call function and update store
       contract.store.dispatch({type: 'CALL_CONTRACT_FN', contract, fnName, fnIndex, args, argsHash})
 
       // Return nothing because state is currently empty.
-      return argsHash
+      return null;
     }
   }
 
