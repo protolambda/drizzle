@@ -74,8 +74,9 @@ Drizzle is a collection of front-end libraries that make writing dapp frontends 
     const trackingId = drizzle.contracts.SimpleStorage.methods.set.cacheSend(2, {from: '0x3f...'})
 
     // Use the dataKey to display the transaction status.
-    if (state.transactionTracker[trackingId]) {
-      const txHash = state.transactionTracker[trackingId]
+    const trackingStatus = state.transactionTracker[trackingId];
+    if (trackingStatus && trackingStatus.broadcasted) {
+      const txHash = trackingStatus.hash
 
       return state.transactions[txHash].status
     }
