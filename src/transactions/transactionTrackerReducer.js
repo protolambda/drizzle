@@ -8,7 +8,8 @@ const transactionTrackerReducer = (state = initialState, action) => {
 
         newState[action.trackingId] = {
             broadcasted: false,
-            info: action.trackedInfo
+            info: action.trackedInfo,
+            hash: null
         }
 
         return newState
@@ -27,7 +28,11 @@ const transactionTrackerReducer = (state = initialState, action) => {
     {
         const newState = {...state}
 
-        newState[action.trackingId] = action.txHash
+        newState[action.trackingId] = {
+            broadcasted: true,
+            info: newState.info,
+            hash: action.txHash
+        }
 
         return newState
     }
