@@ -70,12 +70,12 @@ Drizzle is a collection of front-end libraries that make writing dapp frontends 
 
    // If Drizzle is initialized (and therefore web3, accounts and contracts), continue.
    if (state.drizzleStatus.initialized) {
-    // Declare this transaction to be observed. We'll receive the stackId for reference.
-    const stackId = drizzle.contracts.SimpleStorage.methods.set.cacheSend(2, {from: '0x3f...'})
+    // Declare this transaction to be observed. We'll receive the trackingId for reference.
+    const trackingId = drizzle.contracts.SimpleStorage.methods.set.cacheSend(2, {from: '0x3f...'})
 
     // Use the dataKey to display the transaction status.
-    if (state.transactionStack[stackId]) {
-      const txHash = state.transactionStack[stackId]
+    if (state.transactionTracker[trackingId]) {
+      const txHash = state.transactionTracker[trackingId]
 
       return state.transactions[txHash].status
     }
@@ -156,13 +156,20 @@ An object consisting of the type and url of a fallback web3 provider. This is us
   },
   transactions: {
     txHash: {
+      trackingId,
       confirmations,
       error,
       receipt,
       status
     }
   },
-  transactionStack,
+  transactionTracker: {
+      trackingId: {
+          broadcasted,
+          info,
+          hash
+      }
+  }
   drizzleStatus: {
     initialized
   },
@@ -210,8 +217,20 @@ A series of transaction objects, indexed by transaction hash.
 
 For more in-depth information on the Ethereum transaction lifecycle, [check out this great blog post](https://medium.com/blockchannel/life-cycle-of-an-ethereum-transaction-e5c66bae0f6e).
 
-### `transactionStack` (array)
-In some cases, a transaction may be malformed and not even make it to being broadcasted. To keep track of this, an empty string will be added to this array and replaced with the transaction hash once broascasted. The `cacheSend()` method will return a `stackId`, which will allow you to observe this process for your own transaction status indicator UI.
+### `transactionTracker` (object)
+In some cases, a transaction may be malformed and not even make it to being broadcasted.
+To keep track of this, an tracking object will be added to this object and updated with the transaction hash once broadcasted.
+The `cacheSend()` method will return a `trackingId`, which will allow you to observe this process for your own transaction status indicator UI.
+
+#### `<trackingId>` (object)
+
+Data to observe broadcasting progress.
+
+`broadcasted` (boolean): True if broadcast was succesfully completed, false otherwise.
+
+`info` (anything): Provided by the user, can be used to describe what the transaction is about etc.
+
+`hash` (string): When broadcasted, this is set to the hash used in the `transaction` state object. Is `null` by default.
 
 ### `drizzleStatus` (object)
 An object containing information about the status of Drizzle.
