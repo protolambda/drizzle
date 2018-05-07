@@ -5,7 +5,7 @@ import accountBalancesReducer from './accountBalances/accountBalancesReducer'
 import contractsReducer from './contracts/contractsReducer'
 import drizzleStatusReducer from './drizzleStatus/drizzleStatusReducer'
 import transactionsReducer from './transactions/transactionsReducer'
-import transactionStackReducer from './transactions/transactionStackReducer'
+import transactionTrackerReducer from './transactions/transactionTrackerReducer'
 import web3Reducer from './web3/web3Reducer'
 
 const reducer = combineReducers({
@@ -14,7 +14,7 @@ const reducer = combineReducers({
   contracts: contractsReducer,
   drizzleStatus: drizzleStatusReducer,
   transactions: transactionsReducer,
-  transactionStack: transactionStackReducer,
+  transactionTracker: transactionTrackerReducer,
   web3: web3Reducer
 })
 

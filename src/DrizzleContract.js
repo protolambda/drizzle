@@ -1,3 +1,5 @@
+import uuid4 from "uuid/v4";
+
 class DrizzleContract {
   constructor(contractArtifact, web3, networkId, store, events = []) {
     this.contractArtifact = contractArtifact
@@ -101,7 +103,8 @@ class DrizzleContract {
     }
   }
 
-  cacheSendFunction(fnName, fnIndex, fn) {
+  // Note: trackedInfo is optional, can be used to describe what is being tracked.
+  cacheSendFunction(fnName, fnIndex, trackedInfo) {
     // NOTE: May not need fn index
     var contract = this
 
@@ -109,17 +112,20 @@ class DrizzleContract {
       var args = arguments
 
       // Generate temporary ID
-      var stackId = contract.store.getState().transactionStack.length
+      var trackingId = uuid4()
 
-      // Add ID to "transactionStack" with empty value
-      contract.store.dispatch({type: 'PUSH_TO_STACK'})
+      // Add ID to "transactionTracker" with trackingInfo
+      contract.store.dispatch({type: 'ADD_TO_TRACKER', trackingId, trackedInfo})
       
       // Dispatch tx to saga
-      // When txhash received, will be value of stack ID
-      contract.store.dispatch({type: 'SEND_CONTRACT_TX', contract, fnName, fnIndex, args, stackId})
+      // When txhash received, it is inserted into the 'transactions' state
+      // (txhash as key, trackingId as additional property to find it)
+      // Also, it is kept in "transactionTracker", it is up to the user to remove it
+      contract.store.dispatch({type: 'SEND_CONTRACT_TX',
+          contract, fnName, fnIndex, args, trackingId})
      
-      // return stack ID
-      return stackId
+      // return tracking ID
+      return trackingId
     }
   }
 

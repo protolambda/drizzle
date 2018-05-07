@@ -52,18 +52,18 @@ function* callListenForContractEvent({contract, eventName}) {
  * Send and Cache
  */
 
-function createTxChannel({txObject, stackId, sendArgs = {}, contractName}) {
+function createTxChannel({txObject, trackingId, sendArgs = {}, contractName}) {
   var persistTxHash
 
   return eventChannel(emit => {
     const txPromiEvent = txObject.send(sendArgs).on('transactionHash', txHash => {
       persistTxHash = txHash
 
-      emit({type: 'TX_BROADCASTED', txHash, stackId})
+      emit({type: 'TX_BROADCASTED', txHash, trackingId})
       emit({type: 'CONTRACT_SYNC_IND', contractName})
     })
     .on('confirmation', (confirmationNumber, receipt) => {
-      emit({type: 'TX_CONFIRMAITON', confirmationReceipt: receipt, txHash: persistTxHash})
+      emit({type: 'TX_CONFIRMATION', confirmationReceipt: receipt, txHash: persistTxHash})
     })
     .on('receipt', receipt => {
       emit({type: 'TX_SUCCESSFUL', receipt: receipt, txHash: persistTxHash})
@@ -82,15 +82,15 @@ function createTxChannel({txObject, stackId, sendArgs = {}, contractName}) {
   })
 }
 
-function* callSendContractTx({contract, fnName, fnIndex, args, stackId}) {
+function* callSendContractTx({contract, fnName, fnIndex, args, trackingId}) {
   // Check for type of object and properties indicative of call/send options.
+  var sendArgs = {}
   if (args.length) {
     const finalArg = args.length > 1 ? args[args.length - 1] : args[0]
-    var sendArgs = {}
     var finalArgTest = false
   
     if (typeof finalArg === 'object') {
-      var finalArgTest = call(isSendOrCallOptions, finalArg)
+      finalArgTest = call(isSendOrCallOptions, finalArg)
     }
 
     if (finalArgTest) {
@@ -106,7 +106,7 @@ function* callSendContractTx({contract, fnName, fnIndex, args, stackId}) {
 
   // Create the transaction object and execute the tx.
   const txObject = yield call(contract.methods[fnName], ...args)
-  const txChannel = yield call(createTxChannel, {txObject, stackId, sendArgs, contractName})
+  const txChannel = yield call(createTxChannel, {txObject, trackingId, sendArgs, contractName})
 
   try {
     while (true) {

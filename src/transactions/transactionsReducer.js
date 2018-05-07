@@ -6,13 +6,14 @@ const transactionsReducer = (state = initialState, action) => {
         return {
             ...state,
             [action.txHash]: {
+                trackingId: action.trackingId,
                 status: 'pending',
                 confirmations: []
             }
         }
     }
 
-    if (action.type === 'TX_CONFIRMAITON')
+    if (action.type === 'TX_CONFIRMATION')
     {
         return {
             ...state,

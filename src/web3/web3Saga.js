@@ -13,7 +13,7 @@ export function* initializeWeb3({options}) {
   if (typeof window.web3 !== 'undefined') {
     // Use Mist/MetaMask's provider.
     web3 = new Web3(window.web3.currentProvider)
-    web3.eth.cacheSendTransaction = (txObject) => put({type: 'SEND_WEB3_TX', txObject, stackId, web3})
+    web3.eth.cacheSendTransaction = (txObject) => put({type: 'SEND_WEB3_TX', txObject, web3})
 
     console.log('Injected web3 detected.')
 
@@ -31,7 +31,7 @@ export function* initializeWeb3({options}) {
           web3 = new Web3(provider)
 
           // Attach drizzle functions
-          web3.eth['cacheSendTransaction'] = (txObject) => put({type: 'SEND_WEB3_TX', txObject, stackId, web3})
+          web3.eth['cacheSendTransaction'] = (txObject) => put({type: 'SEND_WEB3_TX', txObject, web3})
 
           yield put({type: 'WEB3_INITIALIZED'})
 
@@ -87,17 +87,17 @@ export function* getNetworkId({web3}) {
  * Send Transaction
  */
 
-function createTxChannel({txObject, stackId, web3}) {
+function createTxChannel({txObject, web3}) {
   var persistTxHash
 
   return eventChannel(emit => {
     const txPromiEvent = web3.eth.sendTransaction(txObject).on('transactionHash', txHash => {
       persistTxHash = txHash
 
-      emit({type: 'W3TX_BROADCASTED', txHash, stackId})
+      emit({type: 'W3TX_BROADCASTED', txHash})
     })
     .on('confirmation', (confirmationNumber, receipt) => {
-      emit({type: 'W3TX_CONFIRMAITON', confirmationReceipt: receipt, txHash: persistTxHash})
+      emit({type: 'W3TX_CONFIRMATION', confirmationReceipt: receipt, txHash: persistTxHash})
     })
     .on('receipt', receipt => {
       emit({type: 'W3TX_SUCCESSFUL', receipt: receipt, txHash: persistTxHash})
@@ -116,8 +116,8 @@ function createTxChannel({txObject, stackId, web3}) {
   })
 }
 
-function* callSendTx({txObject, stackId, web3}) {
-  const txChannel = yield call(createTxChannel, {txObject, stackId, web3})
+function* callSendTx({txObject, trackingId, web3}) {
+  const txChannel = yield call(createTxChannel, {txObject, trackingId, web3})
 
   try {
     while (true) {
