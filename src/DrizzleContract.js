@@ -103,30 +103,34 @@ class DrizzleContract {
     }
   }
 
-  // Note: trackedInfo is optional, can be used to describe what is being tracked.
-  cacheSendFunction(fnName, fnIndex, trackedInfo) {
+  cacheSendFunction(fnName, fnIndex) {
     // NOTE: May not need fn index
     var contract = this
 
-    return function() {
-      var args = arguments
+      return function (trackedInfo) {
 
-      // Generate temporary ID
-      var trackingId = uuid4()
+          return function () {
+              var args = arguments
 
-      // Add ID to "transactionTracker" with trackingInfo
-      contract.store.dispatch({type: 'ADD_TO_TRACKER', trackingId, trackedInfo})
-      
-      // Dispatch tx to saga
-      // When txhash received, it is inserted into the 'transactions' state
-      // (txhash as key, trackingId as additional property to find it)
-      // Also, it is kept in "transactionTracker", it is up to the user to remove it
-      contract.store.dispatch({type: 'SEND_CONTRACT_TX',
-          contract, fnName, fnIndex, args, trackingId})
-     
-      // return tracking ID
-      return trackingId
-    }
+              // Generate temporary ID
+              var trackingId = uuid4()
+
+              // Add ID to "transactionTracker" with trackingInfo
+              contract.store.dispatch({type: 'ADD_TO_TRACKER', trackingId, trackedInfo})
+
+              // Dispatch tx to saga
+              // When txhash received, it is inserted into the 'transactions' state
+              // (txhash as key, trackingId as additional property to find it)
+              // Also, it is kept in "transactionTracker", it is up to the user to remove it
+              contract.store.dispatch({
+                  type: 'SEND_CONTRACT_TX',
+                  contract, fnName, fnIndex, args, trackingId
+              })
+
+              // return tracking ID
+              return trackingId
+          }
+      }
   }
 
   generateArgsHash(args) {
