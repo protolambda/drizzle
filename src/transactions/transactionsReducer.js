@@ -6,6 +6,7 @@ const transactionsReducer = (state = initialState, action) => {
         return {
             ...state,
             [action.txHash]: {
+                ...state[action.txHash],
                 trackingId: action.trackingId,
                 status: 'pending',
                 confirmations: []

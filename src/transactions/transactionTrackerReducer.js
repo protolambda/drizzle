@@ -3,16 +3,14 @@ const initialState = {}
 const transactionTrackerReducer = (state = initialState, action) => {
     if (action.type === 'ADD_TO_TRACKER')
     {
-
-        const newState = {...state}
-
-        newState[action.trackingId] = {
-            broadcasted: false,
-            info: action.trackedInfo,
-            hash: null
+        return {
+            ...state,
+            [action.trackingId]: {
+                broadcasted: false,
+                info: action.trackedInfo,
+                hash: null
+            }
         }
-
-        return newState
     }
 
     if (action.type === 'REMOVE_FROM_TRACKER')
@@ -26,15 +24,16 @@ const transactionTrackerReducer = (state = initialState, action) => {
 
     if (action.type === 'TX_BROADCASTED')
     {
-        const newState = {...state}
 
-        newState[action.trackingId] = {
-            broadcasted: true,
-            info: newState.info,
-            hash: action.txHash
+        return {
+            ...state,
+            [action.trackingId]: {
+                ...state[action.trackingId],
+                broadcasted: true,
+                hash: action.txHash
+            }
         }
 
-        return newState
     }
 
     return state
