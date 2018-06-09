@@ -15,7 +15,7 @@ const transactionTrackerReducer = (state = initialState, action) => {
         return newState
     }
 
-    if (action.type === 'REMOVE_FROM_TRACKER')
+    if (action.type === 'FORGET_TX')
     {
         const newState = {...state}
 

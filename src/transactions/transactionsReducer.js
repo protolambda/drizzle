@@ -52,6 +52,15 @@ const transactionsReducer = (state = initialState, action) => {
         }
     }
 
+    if (action.type === 'FORGET_TX')
+    {
+        const newState = {...state}
+
+        delete newState[action.txHash]
+
+        return newState
+    }
+
     return state
 }
 
