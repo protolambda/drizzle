@@ -71,7 +71,8 @@ Drizzle is a collection of front-end libraries that make writing dapp frontends 
    // If Drizzle is initialized (and therefore web3, accounts and contracts), continue.
    if (state.drizzleStatus.initialized) {
     // Declare this transaction to be observed. We'll receive the trackingId for reference.
-    const trackingId = drizzle.contracts.SimpleStorage.methods.set.cacheSend(2, {from: '0x3f...'})
+    const trackingId = drizzle.contracts.SimpleStorage.methods.set
+       .cacheSend({foo: "test", bar: "more tracked data"})(2, {from: '0x3f...'})
 
     // Use the dataKey to display the transaction status.
     const trackingStatus = state.transactionTracker[trackingId];
@@ -221,7 +222,7 @@ For more in-depth information on the Ethereum transaction lifecycle, [check out 
 ### `transactionTracker` (object)
 In some cases, a transaction may be malformed and not even make it to being broadcasted.
 To keep track of this, an tracking object will be added to this object and updated with the transaction hash once broadcasted.
-The `cacheSend()` method will return a `trackingId`, which will allow you to observe this process for your own transaction status indicator UI.
+The `cacheSend()()` (higher order function, first tracking info, then web3 arguments) method will return a `trackingId`, which will allow you to observe this process for your own transaction status indicator UI.
 
 #### `<trackingId>` (object)
 
